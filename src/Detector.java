@@ -17,7 +17,7 @@ public class Detector extends Thread{
 	TouchSensor _rightT;
 	TouchSensor _leftT;
 	NXTRegulatedMotor _motor;
-	int _minDistance;
+	int _minDistance = 255;
 	int _dectAngle;
 	boolean alert = false;
     int distance = 255;
@@ -31,28 +31,30 @@ public class Detector extends Thread{
 	}
 	
 	public void detect(){
+		if (alert == false){
 		detectTo(90);
 		detectTo(-90);
+		}
 	}
 	
 	public void detectTo(int limitAngle){
 		int oldAngle = _motor.getTachoCount();
-	     _motor.rotateTo(limitAngle,true);//B
+		_minDistance = 255;
 	      System.out.println("Motor: " +_motor.isMoving()); //B
 	      while (_motor.isMoving())
 	      {
 	         short angle = (short) _motor.getTachoCount();
-	         System.out.println("angle: " + angle); //B
-	         System.out.println("distance: " + _ultrasonic.getDistance());//B
 	         if (angle != oldAngle)
 	         {
 	            distance = _ultrasonic.getDistance();
 	            oldAngle = angle;
 	         }
-	         if (distance > _minDistance) {
+	         if (distance < _minDistance) {
 					_minDistance = distance;
 					_dectAngle = angle;
 				}
+	         System.out.println("angle: " + _dectAngle); //B
+	         System.out.println("distance: " + _minDistance);//B
 	         System.out.println(alert); //B
 	         checkTouch();
 	         checkDistance();
@@ -61,10 +63,10 @@ public class Detector extends Thread{
 	}
 	
 	public void checkDistance(){
-		if(_minDistance < 10  && (_dectAngle < 60 && _dectAngle >-60) ){
+		if(_minDistance < 20  && (_dectAngle < 60 && _dectAngle >-60) ){
 			alarm();
 			System.out.println("Something too close"); //B
-			Button.waitForAnyPress(); //B
+			Button.waitForAnyPress();
 		}
 	}
 	
@@ -75,7 +77,7 @@ public class Detector extends Thread{
 			if (right || left) {
 				alarm();
 				System.out.println("Button has been pressed");//B
-				Button.waitForAnyPress(); //B
+				Button.waitForAnyPress();
 			}
 		}
 	
@@ -83,7 +85,7 @@ public class Detector extends Thread{
 		alert = true;
 		Sound.beep();
 		System.out.println("Hello"); //B
-		Button.waitForAnyPress();//B
+		
 	}
 	
 	public int checkAround(){

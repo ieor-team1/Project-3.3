@@ -1,4 +1,4 @@
-import lejos.nxt.Button;
+import lejos.nxt.Battery;
 import lejos.nxt.LightSensor;
 import lejos.nxt.Motor;
 import lejos.nxt.SensorPort;
@@ -8,7 +8,7 @@ import lejos.robotics.navigation.DifferentialPilot;
  * uses ScanRecorder, Pilot and LightSensor classes to get the data from the
  * sensors and control the robot
  */
-public class Navigator {
+public class Navigator extends Thread{
 
 	float wheelDiameter = 5.6f; // data for DifferentialPilot class
 	float trackWidth = 11.4f;
@@ -28,7 +28,7 @@ public class Navigator {
 	/** control the responsiveness of the steer function */
 
 	public void go() {
-		pilot.setTravelSpeed(0);
+		pilot.setTravelSpeed(50);
 		/**
 		 * We knew the maximum speed of the robot is limited by it's battery, so
 		 * we set the speed at some large number and then the motor will work at
@@ -43,12 +43,26 @@ public class Navigator {
 				pilot.stop();
 				pilot.rotate(180);
 			}
+				//pilot.steer(0);
+				if(d.alert == false) {
 				pilot.steer(-s._angle1 * gain);
 				i++;
+				}
+				else {
+					break;
+				}
 		}
-		pilot.travel(-10);
-		d.alert = false;
-		}
+		pilot.stop();
+				}
 	
 	}
+	
+	public void run(){
+		while (true) {
+		while(d.alert==false){
+			d.detect();
+		}
+		d.alert = false;
+	}
+}
 }
