@@ -8,10 +8,10 @@ import lejos.nxt.TouchSensor;
 import lejos.nxt.UltrasonicSensor;
 import lejos.util.Datalogger;
 
+
 public class Detector extends Thread{
 	
 	/** instance variables*/
-	
 	
 	UltrasonicSensor _ultrasonic;
 	TouchSensor _rightT;
@@ -19,29 +19,35 @@ public class Detector extends Thread{
 	NXTRegulatedMotor _motor;
 	int _minDistance = 255;
 	int _dectAngle;
-	boolean alert = false;
     int distance = 255;
-	Datalogger dl = new Datalogger();
+	Navigator _nav;
 	
-	public Detector(NXTRegulatedMotor motor, SensorPort USport, ADSensorPort rightT, ADSensorPort leftT){
+	public Detector(NXTRegulatedMotor motor, SensorPort USport, ADSensorPort rightT, ADSensorPort leftT, Navigator nav){
 		_ultrasonic = new UltrasonicSensor(USport);
 		_rightT = new TouchSensor(rightT);
 		_leftT = new TouchSensor(leftT);
 		_motor = motor;
+		_nav = nav;
 	}
 	
 	public void detect(){
-		if (alert == false){
-		detectTo(90);
-		detectTo(-90);
-		}
+		detectTo();
 	}
 	
-	public void detectTo(int limitAngle){
+	public int getDistance(){
+		return _minDistance;
+	}
+	
+	public int getAngle(){
+		return _dectAngle;
+	}
+	
+	
+	public void detectTo(){
 		int oldAngle = _motor.getTachoCount();
 		_minDistance = 255;
 	      System.out.println("Motor: " +_motor.isMoving()); //B
-	      while (_motor.isMoving())
+	      while (_nav.alert == false)
 	      {
 	         short angle = (short) _motor.getTachoCount();
 	         if (angle != oldAngle)
@@ -55,7 +61,7 @@ public class Detector extends Thread{
 				}
 	         System.out.println("angle: " + _dectAngle); //B
 	         System.out.println("distance: " + _minDistance);//B
-	         System.out.println(alert); //B
+	         System.out.println(_nav.alert); //B
 	         checkTouch();
 	         checkDistance();
 	      }
@@ -63,10 +69,10 @@ public class Detector extends Thread{
 	}
 	
 	public void checkDistance(){
-		if(_minDistance < 20  && (_dectAngle < 60 && _dectAngle >-60) ){
+		if(_minDistance < 20 ){
 			alarm();
 			System.out.println("Something too close"); //B
-			Button.waitForAnyPress();
+
 		}
 	}
 	
@@ -77,28 +83,36 @@ public class Detector extends Thread{
 			if (right || left) {
 				alarm();
 				System.out.println("Button has been pressed");//B
-				Button.waitForAnyPress();
+
 			}
 		}
 	
 	public void alarm(){
-		alert = true;
+		_nav.obstacle(getDistance(),getAngle());
 		Sound.beep();
-		System.out.println("Hello"); //B
+		System.out.println("Alarm!"); //B
 		
 	}
 	
 	public int checkAround(){
 		_motor.rotate(0, false);
-		detectTo(90);
+		detectTo();
 		int left = _minDistance;
 		_motor.rotate(0, false);
-		detectTo(-90);
+		detectTo();
 		int right = _minDistance;
 		if(left>right){
 			return -1;
 		}
 		else{return 1;}
 	}
+	
+	public void run(){
+		while (true) {
+		while(_nav.alert==false){
+			detect();
+		}
+		distance = 255;
+	}
 
-}
+}}
