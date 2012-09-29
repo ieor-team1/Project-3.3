@@ -16,8 +16,8 @@ public class Navigator {
 	LightSensor lightSensor = new LightSensor(SensorPort.S4); //
 	DifferentialPilot pilot = new DifferentialPilot(wheelDiameter, trackWidth, Motor.A, Motor.C); // Pilot class
 	ScanRecorder s = new ScanRecorder(Motor.B, lightSensor);
-	Detector d = new Detector(Motor.B, SensorPort.S3, SensorPort.S1, SensorPort.S2, this);
-	Avoider avoider = new Avoider(pilot);
+	Detector d = new Detector(Motor.B, SensorPort.S3, SensorPort.S1, SensorPort.S2, this, s);
+	Avoider avoider = new Avoider(pilot, d, this);
 	
 	/**
 	 * Changes scan sweep direction. (left to right or right to left) Pass it to
@@ -28,9 +28,14 @@ public class Navigator {
 	double gain = 1.2f;
 	boolean alert = false;
 	int _angle;
+	int _lightAngle;
 	int _distance;
 
 	/** control the responsiveness of the steer function */
+	
+	public void tryAvoid(){
+		avoider.avoid(13, 9);
+	}
 
 	public void toLight() {
 		pilot.setTravelSpeed(30);
@@ -49,13 +54,23 @@ public class Navigator {
 				pilot.stop();
 				pilot.rotate(180);
 			}
-				//pilot.steer(0);
+				
 			
-			if(alert == false)	pilot.steer(-s.getTargetBearing() * gain);
-			else {	pilot.stop();
-					avoider.avoid(_angle, _distance);
-					Button.waitForAnyPress();
-					alert = false;
+			if(alert == false) {	
+				pilot.steer(-s.getTargetBearing() * gain);
+				//pilot.steer(0);
+			}
+			else {	
+					_lightAngle = s.getTargetBearing();
+					while(alert){
+					//pilot.stop();
+						avoider.avoid(_angle, _distance);
+						alert = false;
+						while(pilot.isMoving()){
+						}
+						pilot.rotate(-d._PathAngle);
+					}
+					
 			}
 			i++;
 		}
@@ -66,10 +81,10 @@ public class Navigator {
 	
 	
 
-	public void obstacle(int angle, int distance){
+	public void obstacle(int distance, int angle){
 		alert = true;
 		pilot.stop();
-		_angle = angle;
-		_distance = distance;
+		_angle = angle; //angle of the obstacle
+		_distance = distance; //distance of the obstacle
 	}
 }

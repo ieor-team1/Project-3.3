@@ -19,15 +19,19 @@ public class Detector extends Thread{
 	NXTRegulatedMotor _motor;
 	int _minDistance = 255;
 	int _dectAngle;
-    int distance = 255;
 	Navigator _nav;
+	ScanRecorder _scan;
+	int _maxDistance = 0;
+	int _PathAngle = 0;
+	int distance = 255;
 	
-	public Detector(NXTRegulatedMotor motor, SensorPort USport, ADSensorPort rightT, ADSensorPort leftT, Navigator nav){
+	public Detector(NXTRegulatedMotor motor, SensorPort USport, ADSensorPort rightT, ADSensorPort leftT, Navigator nav, ScanRecorder s){
 		_ultrasonic = new UltrasonicSensor(USport);
 		_rightT = new TouchSensor(rightT);
 		_leftT = new TouchSensor(leftT);
 		_motor = motor;
 		_nav = nav;
+		_scan = s;
 	}
 	
 	public void detect(){
@@ -45,8 +49,8 @@ public class Detector extends Thread{
 	
 	public void detectTo(){
 		int oldAngle = _motor.getTachoCount();
+		distance = 255;
 		_minDistance = 255;
-	      System.out.println("Motor: " +_motor.isMoving()); //B
 	      while (_nav.alert == false)
 	      {
 	         short angle = (short) _motor.getTachoCount();
@@ -59,9 +63,6 @@ public class Detector extends Thread{
 					_minDistance = distance;
 					_dectAngle = angle;
 				}
-	         System.out.println("angle: " + _dectAngle); //B
-	         System.out.println("distance: " + _minDistance);//B
-	         System.out.println(_nav.alert); //B
 	         checkTouch();
 	         checkDistance();
 	      }
@@ -69,7 +70,7 @@ public class Detector extends Thread{
 	}
 	
 	public void checkDistance(){
-		if(_minDistance < 20 ){
+		if(_minDistance < 15 ){
 			alarm();
 			System.out.println("Something too close"); //B
 
@@ -94,18 +95,39 @@ public class Detector extends Thread{
 		
 	}
 	
-	public int checkAround(){
-		_motor.rotate(0, false);
-		detectTo();
-		int left = _minDistance;
-		_motor.rotate(0, false);
-		detectTo();
-		int right = _minDistance;
-		if(left>right){
-			return -1;
-		}
-		else{return 1;}
+	public void checkAround(){
+		System.out.println("Checking");
+		_scan.rotateTo(-60, false);
+		_scan.rotateTo(60, true);
+		_maxDistance = 0;
+		_PathAngle = 0;
+		int checkdistance = 0;
+		int oldAngle = _motor.getTachoCount();
+		      while (_motor.isMoving()) { 
+		      {
+		         short angle = (short) _motor.getTachoCount();
+		         if (angle != oldAngle)
+		         {
+		            checkdistance = _ultrasonic.getDistance();
+		            oldAngle = angle;
+		         }
+		         if (checkdistance > _maxDistance) {
+						_maxDistance = checkdistance;
+						_PathAngle = angle;
+					}
+		      }
+		   }
 	}
+		
+//		int left = _minDistance;
+//		_scan.rotateTo(60, true);
+//		detectTo();
+//		int right = _minDistance;
+//		if(left>right){
+//			return -1;
+//		}
+//		else{return 1;}
+//	}
 	
 	public void run(){
 		while (true) {
