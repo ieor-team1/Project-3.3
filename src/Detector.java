@@ -83,6 +83,16 @@ public class Detector extends Thread{
 
 			if (right || left) {
 				alarm();
+				if (right) {
+				_nav.buttonalertR = true; 
+				}
+				else if (left) {
+					_nav.buttonalertL = true;
+				}
+				else if (left && right) {
+					_nav.buttonalertR = true;
+					_nav.buttonalertL = true;
+				}
 				System.out.println("Button has been pressed");//B
 
 			}

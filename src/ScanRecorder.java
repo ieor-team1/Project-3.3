@@ -110,7 +110,7 @@ public class ScanRecorder {
 		 * Modified the scan function so it doesn't write to to datalog but
 		 * rather returns the angle where the maximum light value is.
 		 */
-		int maxPrinting = scanTo((int) Math.pow(-1, i) * 80);
+		int maxPrinting = scanTo((int) Math.pow(-1, i) * (_targetBearing+20));
 		_angle1 = getTargetBearing();
 
 		// s.scanTo(-90);
@@ -122,7 +122,7 @@ public class ScanRecorder {
 	NXTRegulatedMotor motor;
 	LightSensor _eye;
 	/** Angle of maximum light.*/
-	int _targetBearing; 
+	int _targetBearing = 60; 
 	int _maxLight;
 	int light;
 	/** Debugging purposes. Returns _maxlight value*/

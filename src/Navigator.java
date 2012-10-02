@@ -27,6 +27,8 @@ public class Navigator {
 	int i = 0;
 	double gain = 1.2f;
 	boolean alert = false;
+	boolean buttonalertR = false;
+	boolean buttonalertL = false;
 	int _angle;
 	int _lightAngle;
 	int _distance;
@@ -38,6 +40,7 @@ public class Navigator {
 	}
 
 	public void toLight() {
+		//pilot.setTravelSpeed(Battery.getVoltage()*100);
 		pilot.setTravelSpeed(30);
 		d.start();
 		/**
@@ -52,7 +55,7 @@ public class Navigator {
 			System.out.println("Max Light = " + maxLight + " Angle ="+ s.getTargetBearing() + " " + i);
 			if (maxLight > 55) {
 				pilot.stop();
-				pilot.rotate(180);
+				pilot.rotate(180-s.getTargetBearing());
 			}
 				
 			
@@ -68,7 +71,7 @@ public class Navigator {
 						alert = false;
 						while(pilot.isMoving()){
 						}
-						pilot.rotate(-d._PathAngle);
+						pilot.rotate(d._PathAngle);
 					}
 					
 			}
