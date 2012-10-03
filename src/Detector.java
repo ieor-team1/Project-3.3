@@ -20,22 +20,18 @@ public class Detector extends Thread{
 	int _minDistance = 255;
 	int _dectAngle;
 	Navigator _nav;
-	ScanRecorder _scan;
+	Scanner _scan;
 	int _maxDistance = 0;
 	int _PathAngle = 0;
 	int distance = 255;
 	
-	public Detector(NXTRegulatedMotor motor, SensorPort USport, ADSensorPort rightT, ADSensorPort leftT, Navigator nav, ScanRecorder s){
+	public Detector(NXTRegulatedMotor motor, SensorPort USport, ADSensorPort rightT, ADSensorPort leftT, Navigator nav, Scanner s){
 		_ultrasonic = new UltrasonicSensor(USport);
 		_rightT = new TouchSensor(rightT);
 		_leftT = new TouchSensor(leftT);
 		_motor = motor;
 		_nav = nav;
 		_scan = s;
-	}
-	
-	public void detect(){
-		detectTo();
 	}
 	
 	public int getDistance(){
@@ -47,7 +43,7 @@ public class Detector extends Thread{
 	}
 	
 	
-	public void detectTo(){
+	public void detect(){
 		int oldAngle = _motor.getTachoCount();
 		distance = 255;
 		_minDistance = 255;
@@ -71,7 +67,7 @@ public class Detector extends Thread{
 	
 	public void checkDistance(){
 		if(_minDistance < 15 ){
-			alarm();
+			alarm(getDistance(), getAngle());
 			System.out.println("Something too close"); //B
 
 		}
@@ -82,24 +78,25 @@ public class Detector extends Thread{
 			boolean left = _leftT.isPressed();
 
 			if (right || left) {
-				alarm();
-				if (right) {
-				_nav.buttonalertR = true; 
+				alarm(getDistance(), getAngle());
+//				if (right) {
+//				_nav.buttonalertR = true; 
+//				}
+//				else if (left) {
+//					_nav.buttonalertL = true;
+//				}
+//				else if (left && right) {
+//					_nav.buttonalertR = true;
+//					_nav.buttonalertL = true;
+				System.out.println("Button has been pressed");
 				}
-				else if (left) {
-					_nav.buttonalertL = true;
-				}
-				else if (left && right) {
-					_nav.buttonalertR = true;
-					_nav.buttonalertL = true;
-				}
-				System.out.println("Button has been pressed");//B
+				//B
 
 			}
-		}
+		
 	
-	public void alarm(){
-		_nav.obstacle(getDistance(),getAngle());
+	public void alarm(int distance, int angle){
+		_nav.obstacle(distance ,angle);
 		Sound.beep();
 		System.out.println("Alarm!"); //B
 		
@@ -107,8 +104,8 @@ public class Detector extends Thread{
 	
 	public void checkAround(){
 		System.out.println("Checking");
-		_scan.rotateTo(-60, false);
-		_scan.rotateTo(60, true);
+		_scan.rotateTo(90, false);
+		_scan.rotateTo(-90, true);
 		_maxDistance = 0;
 		_PathAngle = 0;
 		int checkdistance = 0;
@@ -121,12 +118,18 @@ public class Detector extends Thread{
 		            checkdistance = _ultrasonic.getDistance();
 		            oldAngle = angle;
 		         }
+		         
 		         if (checkdistance > _maxDistance) {
 						_maxDistance = checkdistance;
 						_PathAngle = angle;
 					}
+		         
+		         if(_maxDistance < 40){
+		        	 alarm(_maxDistance, _PathAngle);
+		         }
 		      }
 		   }
+		_scan.rotateTo(0);
 	}
 		
 //		int left = _minDistance;

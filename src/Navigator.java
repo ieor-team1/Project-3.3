@@ -15,7 +15,7 @@ public class Navigator {
 	float trackWidth = 11.4f;
 	LightSensor lightSensor = new LightSensor(SensorPort.S4); //
 	DifferentialPilot pilot = new DifferentialPilot(wheelDiameter, trackWidth, Motor.A, Motor.C); // Pilot class
-	ScanRecorder s = new ScanRecorder(Motor.B, lightSensor);
+	Scanner s = new Scanner(Motor.B, lightSensor);
 	Detector d = new Detector(Motor.B, SensorPort.S3, SensorPort.S1, SensorPort.S2, this, s);
 	Avoider avoider = new Avoider(pilot, d, this);
 	
@@ -42,6 +42,8 @@ public class Navigator {
 	public void toLight() {
 		//pilot.setTravelSpeed(Battery.getVoltage()*100);
 		pilot.setTravelSpeed(30);
+		pilot.setAcceleration(300);
+		s.setSpeed(500);
 		d.start();
 		/**
 		 * We knew the maximum speed of the robot is limited by it's battery, so
@@ -50,12 +52,15 @@ public class Navigator {
 		 */
 		while (true) {
 		while (alert == false) {
-			s.setSpeed(700);
 			int maxLight = s.scan(i);
 			System.out.println("Max Light = " + maxLight + " Angle ="+ s.getTargetBearing() + " " + i);
 			if (maxLight > 55) {
 				pilot.stop();
-				pilot.rotate(180-s.getTargetBearing());
+				pilot.rotate(-(Math.signum(s.getTargetBearing())*180+s.getTargetBearing()));
+				s.rotateTo(-80);
+				maxLight = s.scanTo(80);
+				pilot.rotate(-s.getTargetBearing());
+				//pilot.rotate(180);
 			}
 				
 			
@@ -71,7 +76,7 @@ public class Navigator {
 						alert = false;
 						while(pilot.isMoving()){
 						}
-						pilot.rotate(d._PathAngle);
+						pilot.rotate(-d._PathAngle);
 					}
 					
 			}
@@ -86,7 +91,7 @@ public class Navigator {
 
 	public void obstacle(int distance, int angle){
 		alert = true;
-		pilot.stop();
+		//pilot.stop(); i just commented this to make everything smoother, uncomment if necessary
 		_angle = angle; //angle of the obstacle
 		_distance = distance; //distance of the obstacle
 	}

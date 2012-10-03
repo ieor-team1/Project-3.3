@@ -17,7 +17,7 @@ public class Avoider {
 
 	public void avoid(int angle, int distance) { // give touch sensor is hit
 		_pilot.stop();
-		_pilot.travel(-7);
+		_pilot.travel(-20);
 
 //		if (_nav.buttonalertR && _nav.buttonalertL == false) {
 //			_pilot.rotate(35);
@@ -36,15 +36,17 @@ public class Avoider {
 
 			System.out.println("Path Angle" + _dec._PathAngle);
 			if (_dec._PathAngle >= 0) {
-				_pilot.rotate(-_dec._PathAngle - _overangle);
+				_dec._PathAngle = -_dec._PathAngle - _overangle;
+				_pilot.rotate(_dec._PathAngle);
 			} else if (_dec._PathAngle < 0) {
-				_pilot.rotate(-_dec._PathAngle + _overangle);
+				_dec._PathAngle = -_dec._PathAngle + _overangle;
+				_pilot.rotate(_dec._PathAngle);
 			}
 			System.out.println("Max distance" + _dec._maxDistance);
 			if (_dec._maxDistance < 50) {
-				_pilot.travel(_dec._maxDistance / 1.5, true);
+				_pilot.travel(_dec._maxDistance / 1.3, true);
 			} else if (_dec._maxDistance >= 50) {
-				_pilot.travel(40, true);
+				_pilot.travel(70, true);
 			}
 //			_nav.buttonalertL = false;
 //			_nav.buttonalertR = false;

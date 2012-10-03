@@ -8,9 +8,9 @@ import lejos.util.Datalogger;
  * based on ScanRecorder @author owner.GLASSEY
  * modified by Browly and Almudena for Project 3 Milestone 1
  */
-public class ScanRecorder {
+public class Scanner {
 
-	public ScanRecorder(NXTRegulatedMotor theMotor, LightSensor eye) {
+	public Scanner(NXTRegulatedMotor theMotor, LightSensor eye) {
 		motor = theMotor;
 		_eye = eye;
 		_eye.setFloodlight(false);
@@ -110,11 +110,9 @@ public class ScanRecorder {
 		 * Modified the scan function so it doesn't write to to datalog but
 		 * rather returns the angle where the maximum light value is.
 		 */
-		int maxPrinting = scanTo((int) Math.pow(-1, i) * (_targetBearing+20));
+		//int maxPrinting = scanTo((int) Math.pow(-1, i) * (_targetBearing+20));
+		int maxPrinting = scanTo((int) Math.pow(-1, i) * 45);
 		_angle1 = getTargetBearing();
-
-		// s.scanTo(-90);
-
 		return maxPrinting;
 	}
 
