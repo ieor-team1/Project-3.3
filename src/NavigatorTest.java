@@ -1,4 +1,4 @@
-import lejos.nxt.Button;
+import lejos.nxt.Button; 
 
 public class NavigatorTest { // main class to test Navigator
 

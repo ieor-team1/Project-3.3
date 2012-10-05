@@ -44,9 +44,9 @@ public class Avoider {
 			}
 			System.out.println("Max distance" + _dec._maxDistance);
 			if (_dec._maxDistance < 50) {
-				_pilot.travel(_dec._maxDistance / 1.3, true);
+				_pilot.travel(_dec._maxDistance / 1.1, true); //B Change from 1.3
 			} else if (_dec._maxDistance >= 50) {
-				_pilot.travel(70, true);
+				_pilot.travel(80, true); //B (Change from 70
 			}
 //			_nav.buttonalertL = false;
 //			_nav.buttonalertR = false;

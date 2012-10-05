@@ -50,11 +50,8 @@ public class Detector extends Thread{
 	      while (_nav.alert == false)
 	      {
 	         short angle = (short) _motor.getTachoCount();
-	         if (angle != oldAngle)
-	         {
 	            distance = _ultrasonic.getDistance();
 	            oldAngle = angle;
-	         }
 	         if (distance < _minDistance) {
 					_minDistance = distance;
 					_dectAngle = angle;

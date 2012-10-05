@@ -32,6 +32,7 @@ public class Navigator {
 	int _angle;
 	int _lightAngle;
 	int _distance;
+	int maxLightValue = 55;
 
 	/** control the responsiveness of the steer function */
 	
@@ -54,12 +55,13 @@ public class Navigator {
 		while (alert == false) {
 			int maxLight = s.scan(i);
 			System.out.println("Max Light = " + maxLight + " Angle ="+ s.getTargetBearing() + " " + i);
-			if (maxLight > 55) {
+			if (maxLight > maxLightValue) {
 				pilot.stop();
 				pilot.rotate(-(Math.signum(s.getTargetBearing())*180+s.getTargetBearing()));
 				s.rotateTo(-80);
 				maxLight = s.scanTo(80);
 				pilot.rotate(-s.getTargetBearing());
+				pilot.steer(0);
 				//pilot.rotate(180);
 			}
 				
@@ -77,6 +79,7 @@ public class Navigator {
 						while(pilot.isMoving()){
 						}
 						pilot.rotate(-d._PathAngle);
+						pilot.travel(15); //B
 					}
 					
 			}
@@ -91,7 +94,7 @@ public class Navigator {
 
 	public void obstacle(int distance, int angle){
 		alert = true;
-		//pilot.stop(); i just commented this to make everything smoother, uncomment if necessary
+		pilot.stop(); 
 		_angle = angle; //angle of the obstacle
 		_distance = distance; //distance of the obstacle
 	}
